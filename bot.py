@@ -596,7 +596,13 @@ async def show_settings(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # MAIN
 # =========================
 def main():
-    app = ApplicationBuilder().token(config.BOT_TOKEN).build()
+    async def _on_startup(app):
+        # AsyncIOScheduler needs a running event loop to attach to.
+        # PTB doesn't create one until run_polling() starts, so we
+        # start APScheduler here instead of in main().
+        scheduler.start()
+
+    app = ApplicationBuilder().token(config.BOT_TOKEN).post_init(_on_startup).build()
 
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("id", get_chat_id))
@@ -631,8 +637,6 @@ def main():
 
     app.add_handler(MessageHandler(filters.PHOTO | filters.VIDEO, handle_media))
     app.add_handler(MessageHandler(filters.Document.ALL, handle_document))
-
-    scheduler.start()
 
     print("🤖 Bot running...")
     app.run_polling()
