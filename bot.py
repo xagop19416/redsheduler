@@ -21,26 +21,26 @@ import utils
 # START / HELP
 # =========================
 HELP_TEXT = (
-    "👋 *Media Scheduler Bot*\n\n"
-    "*Queue*\n"
+    "👋 Media Scheduler Bot\n\n"
+    "QUEUE\n"
     "Send photos/videos to add them to the active queue.\n"
     "/queue — show active queue\n"
     "/clear — clear active queue\n"
     "/newqueue <name> — create + switch to a new queue\n"
     "/queues — list queues, tap to switch\n\n"
-    "*Destinations*\n"
+    "DESTINATIONS\n"
     "/adddest <name> <chat_id> — add a channel/group\n"
     "/destinations — list + enable/disable\n"
     "/checkdest <name> — health check a destination\n\n"
-    "*Sending*\n"
+    "SENDING\n"
     "/sendnow — send whole queue immediately\n"
     "/startscheduler — begin auto-posting\n"
     "/stopscheduler — stop auto-posting\n"
     "/next — countdown to next scheduled post\n\n"
-    "*Dashboards*\n"
+    "DASHBOARDS\n"
     "/dashboard — progress overview\n"
     "/stats — per-destination statistics\n\n"
-    "*Settings*\n"
+    "SETTINGS\n"
     "/setinterval fixed <seconds>\n"
     "/setinterval random <min> <max>\n"
     "/setcaption <text|clear>\n"
@@ -49,14 +49,14 @@ HELP_TEXT = (
     "/settimezone <tz e.g. Asia/Kolkata>\n"
     "/setdatetimeformat <strftime format>\n"
     "/settings — show current settings\n\n"
-    "*Other*\n"
+    "OTHER\n"
     "/id — show this chat's ID\n"
-    "Send a *.zip* of photos/videos to bulk-add to the queue."
+    "Send a .zip of photos/videos to bulk-add to the queue."
 )
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text(HELP_TEXT, parse_mode="Markdown")
+    await update.message.reply_text(HELP_TEXT)
 
 
 async def get_chat_id(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -276,7 +276,7 @@ async def list_destinations(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     buttons = []
-    lines = ["📤 *Destinations*"]
+    lines = ["📤 Destinations"]
     for name, d in chat["destinations"].items():
         state = "🟢 on" if d.get("enabled", True) else "🔴 off"
         health = {"True": "✅", "False": "⚠️"}.get(str(d.get("healthy")), "❔")
@@ -286,7 +286,7 @@ async def list_destinations(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )])
 
     await update.message.reply_text(
-        "\n".join(lines), parse_mode="Markdown",
+        "\n".join(lines),
         reply_markup=InlineKeyboardMarkup(buttons),
     )
 
@@ -414,17 +414,17 @@ async def dashboard(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
     text = (
-        "📊 *Progress Dashboard*\n\n"
-        f"*Queues:*\n" + "\n".join(q_lines) + "\n\n"
-        f"*Active queue:* {chat['active_queue']}\n"
-        f"*Scheduler:* {sched_line}\n"
-        f"*Interval mode:* {mode_line}\n"
-        f"*Destinations:* {len(chat['destinations'])} "
+        "📊 Progress Dashboard\n\n"
+        "Queues:\n" + "\n".join(q_lines) + "\n\n"
+        f"Active queue: {chat['active_queue']}\n"
+        f"Scheduler: {sched_line}\n"
+        f"Interval mode: {mode_line}\n"
+        f"Destinations: {len(chat['destinations'])} "
         f"({sum(1 for d in chat['destinations'].values() if d.get('enabled', True))} enabled)\n"
-        f"*Total sent:* {chat['stats']['total_sent']} | "
-        f"*Total failed:* {chat['stats']['total_failed']}"
+        f"Total sent: {chat['stats']['total_sent']} | "
+        f"Total failed: {chat['stats']['total_failed']}"
     )
-    await update.message.reply_text(text, parse_mode="Markdown")
+    await update.message.reply_text(text)
 
 
 async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -435,14 +435,14 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("No destinations set yet.")
         return
 
-    lines = ["📈 *Destination statistics*"]
+    lines = ["📈 Destination statistics"]
     for name, d in chat["destinations"].items():
         lines.append(
             f"• {name} ({d['chat_id']}): sent {d['sent']}, failed {d['failed']}, "
             f"{'enabled' if d.get('enabled', True) else 'disabled'}, "
             f"last check: {d.get('last_checked') or 'never'}"
         )
-    await update.message.reply_text("\n".join(lines), parse_mode="Markdown")
+    await update.message.reply_text("\n".join(lines))
 
 
 # =========================
@@ -579,7 +579,7 @@ async def show_settings(update: Update, context: ContextTypes.DEFAULT_TYPE):
     s = chat["settings"]
 
     text = (
-        "⚙️ *Settings*\n"
+        "⚙️ Settings\n"
         f"Mode: {s['mode']}\n"
         f"Fixed delay: {s['fixed_delay']}s\n"
         f"Random range: {s['min_delay']}-{s['max_delay']}s\n"
@@ -589,7 +589,7 @@ async def show_settings(update: Update, context: ContextTypes.DEFAULT_TYPE):
         f"Timezone: {s['timezone']}\n"
         f"Datetime format: {s['datetime_format']}"
     )
-    await update.message.reply_text(text, parse_mode="Markdown")
+    await update.message.reply_text(text)
 
 
 # =========================
